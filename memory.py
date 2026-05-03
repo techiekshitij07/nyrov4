@@ -1,4 +1,4 @@
-# memory.py — Nyro v3 Persistent Memory
+# memory.py — Nyro v4 Persistent Memory
 # -*- coding: utf-8 -*-
 import os, json
 from config import MEM_FILE
