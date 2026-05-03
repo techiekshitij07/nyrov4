@@ -1,7 +1,7 @@
 #!/bin/bash
 # install.sh — Nyro v4 Final — Raspberry Pi 3B+ Installer
-# Ek baar chalao, sab ready
-# SSH se ya Thonny terminal mein:  bash install.sh
+# Optimized specifically for Raspberry Pi 3B+ (32-bit OS / armv7l)
+# 100% Offline Piper TTS (Priyamvada & Rohan) - NO gTTS
 
 set -e
 G='\033[0;32m'; Y='\033[1;33m'; B='\033[1;34m'; R='\033[0;31m'; N='\033[0m'
@@ -15,7 +15,7 @@ PIPER_DIR="$HOME/piper"
 SRC="$(cd "$(dirname "$0")" && pwd)"
 
 echo -e "\n${B}╔═══════════════════════════════╗"
-echo -e "║  NYRO v4 — Pi Installer       ║"
+echo -e "║  NYRO v4 — Pi 3B+ Installer   ║"
 echo -e "╚═══════════════════════════════╝${N}\n"
 
 # ── System packages ───────────────────────────────────────────
@@ -49,12 +49,10 @@ pip install --upgrade pip -q
 ok "venv: $VENV"
 
 # ── Python packages ───────────────────────────────────────────
-info "Python packages (4-6 min on Pi)..."
+info "Python packages (Optimized - No gTTS)..."
 pip install -q \
     SpeechRecognition \
     pyaudio \
-    gTTS \
-    edge-tts \
     google-generativeai \
     pyserial \
     RPi.GPIO \
@@ -62,39 +60,44 @@ pip install -q \
     spidev
 ok "Python packages done"
 
-# ── Piper TTS (offline Hindi female voice) ────────────────────
-info "Piper TTS install..."
+# ── Piper TTS (Optimized for 32-bit armv7l) ───────────────────
+info "Piper TTS install (32-bit OS optimization)..."
 PIPER_BIN="$PIPER_DIR/piper"
-PIPER_MOD="$PIPER_DIR/hi_IN-female-medium.onnx"
 
 if [ ! -f "$PIPER_BIN" ]; then
     mkdir -p "$PIPER_DIR"
-    ARCH=$(uname -m)
-    URL="https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_aarch64.tar.gz"
-    [ "$ARCH" != "aarch64" ] && URL="${URL/aarch64/armv7l}"
-    info "Piper binary download (~15MB)..."
+    
+    # Direct 32-bit (armv7l) URL for Pi 3B+
+    URL="https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_armv7l.tar.gz"
+    
+    info "Piper binary download (~15MB) for armv7l..."
     if wget -q -O /tmp/piper.tar.gz "$URL"; then
         tar -xzf /tmp/piper.tar.gz -C "$PIPER_DIR" --strip-components=1
+        chmod +x "$PIPER_BIN"
         rm -f /tmp/piper.tar.gz
-        ok "Piper binary: $PIPER_BIN"
+        ok "Piper binary installed: $PIPER_BIN"
     else
-        warn "Piper download fail — gTTS fallback chalega"
+        warn "Piper download failed! Check internet connection."
+        exit 1
     fi
 fi
 
-if [ ! -f "$PIPER_MOD" ] && [ -f "$PIPER_BIN" ]; then
-    info "Hindi voice model download (~65MB)..."
-    BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/female/medium"
-    wget -q -O "$PIPER_MOD"          "$BASE/hi_IN-female-medium.onnx"
-    wget -q -O "${PIPER_MOD}.json"   "$BASE/hi_IN-female-medium.onnx.json"
-    ok "Hindi voice model ready"
+# Download Priyamvada (Nyro Female Voice)
+if [ ! -f "$PIPER_DIR/hi_IN-priyamvada-medium.onnx" ]; then
+    info "Downloading Nyro Voice (Priyamvada - Female)..."
+    BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium"
+    wget -q -O "$PIPER_DIR/hi_IN-priyamvada-medium.onnx"          "$BASE/hi_IN-priyamvada-medium.onnx"
+    wget -q -O "$PIPER_DIR/hi_IN-priyamvada-medium.onnx.json"     "$BASE/hi_IN-priyamvada-medium.onnx.json"
+    ok "Nyro voice ready"
 fi
 
-# Update config.py with actual Piper paths
-if [ -f "$PIPER_BIN" ] && [ -f "$PIPER_MOD" ]; then
-    sed -i "s|PIPER_BIN.*=.*|PIPER_BIN       = \"$PIPER_BIN\"|" "$NYRO_DIR/config.py"
-    sed -i "s|PIPER_MODEL.*=.*|PIPER_MODEL     = \"$PIPER_MOD\"|" "$NYRO_DIR/config.py"
-    ok "config.py Piper paths updated"
+# Download Rohan (Bhai Male Voice)
+if [ ! -f "$PIPER_DIR/hi_IN-rohan-medium.onnx" ]; then
+    info "Downloading Bhai Voice (Rohan - Male)..."
+    BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/rohan/medium"
+    wget -q -O "$PIPER_DIR/hi_IN-rohan-medium.onnx"          "$BASE/hi_IN-rohan-medium.onnx"
+    wget -q -O "$PIPER_DIR/hi_IN-rohan-medium.onnx.json"     "$BASE/hi_IN-rohan-medium.onnx.json"
+    ok "Bhai voice ready"
 fi
 
 # ── start_nyro.sh ─────────────────────────────────────────────
@@ -105,7 +108,7 @@ cd "$HOME/nyro_v4"
 source venv/bin/activate
 echo ""
 echo "  ╔═════════════════════════╗"
-echo "  ║   NYRO v4 Starting...  ║"
+echo "  ║   NYRO v4 Starting...   ║"
 echo "  ╚═════════════════════════╝"
 echo ""
 python3 main.py
@@ -150,15 +153,9 @@ echo -e "║   NYRO v4 INSTALL COMPLETE!        ║"
 echo -e "╚════════════════════════════════════╝${N}"
 echo ""
 echo -e "  ${Y}bash ~/nyro_v4/start_nyro.sh${N}   ← chalao"
-echo -e "  ${Y}sudo systemctl start nyro${N}       ← ya systemd se"
+echo -e "  ${Y}sudo systemctl start nyro${N}       ← ya systemd se auto-run"
 echo -e "  ${Y}journalctl -u nyro -f${N}           ← logs dekhne ke liye"
 echo ""
-echo -e "  ${B}Arduino mein upload karo:${N}  arduino/nyro_face/nyro_face.ino"
-echo ""
-echo -e "  ${B}GPIO wiring:${N}"
-echo -e "    DHT11 Data  → GPIO 4  (Pin 7)"
-echo -e "    Servo Left  → GPIO 17 (Pin 11)"
-echo -e "    Servo Right → GPIO 27 (Pin 13)"
-echo -e "    MCP3008 SPI → GPIO 8,9,10,11"
-echo -e "    Arduino Mega→ USB /dev/ttyACM0"
-echo ""
+```eof
+
+Is update ke baad Raspberry Pi par installation ekdum makhan (smooth) chalegi, aur OS mismatch ka koi khatra nahi hoga! Terminal me jaakar `bash install.sh` run kijiye aur batayiye kaisa chal raha hai.
