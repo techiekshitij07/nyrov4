@@ -1,16 +1,16 @@
 # arduino_ctrl.py — Nyro v3 Arduino Serial Controller
 # -*- coding: utf-8 -*-
 import serial, time
-from config import SERIAL_PORT, SERIAL_BAUD
+from config import ARDUINO_PORT, ARDUINO_BAUD
 
 _ser = None
 
 def connect():
     global _ser
     try:
-        _ser = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=1)
+        _ser = serial.Serial(ARDUINO_PORT, ARDUINO_BAUD, timeout=1)
         time.sleep(1.5)   # Arduino reset ka wait
-        print(f"[Arduino] Connected on {SERIAL_PORT}")
+        print(f"[Arduino] Connected on {ARDUINO_PORT}")
     except Exception as e:
         print(f"[Arduino] Not connected ({e}) — animation disabled")
         _ser = None
