@@ -9,9 +9,10 @@ ok()   { echo -e "${G}[OK]${N} $1"; }
 info() { echo -e "${B}[>>]${N} $1"; }
 warn() { echo -e "${Y}[!!]${N} $1"; }
 
-NYRO_DIR="$HOME/nyro_v4"
+# NAYA PATH UPDATE KIYA GAYA HAI
+NYRO_DIR="/home/kd01/nyrov4"
 VENV="$NYRO_DIR/venv"
-PIPER_DIR="$HOME/piper"
+PIPER_DIR="/home/kd01/piper"
 SRC="$(cd "$(dirname "$0")" && pwd)"
 
 echo -e "\n${B}╔═══════════════════════════════╗"
@@ -104,7 +105,7 @@ fi
 cat > "$NYRO_DIR/start_nyro.sh" << 'LAUNCH'
 #!/bin/bash
 # Nyro v4 Quick Start
-cd "$HOME/nyro_v4"
+cd "/home/kd01/nyrov4"
 source venv/bin/activate
 echo ""
 echo "  ╔═════════════════════════╗"
@@ -125,7 +126,7 @@ After=network.target sound.target pigpio.service
 
 [Service]
 Type=simple
-User=$USER
+User=kd01
 WorkingDirectory=$NYRO_DIR
 ExecStart=$VENV/bin/python3 $NYRO_DIR/main.py
 Restart=on-failure
@@ -152,10 +153,7 @@ echo -e "${G}╔═════════════════════�
 echo -e "║   NYRO v4 INSTALL COMPLETE!        ║"
 echo -e "╚════════════════════════════════════╝${N}"
 echo ""
-echo -e "  ${Y}bash ~/nyro_v4/start_nyro.sh${N}   ← chalao"
+echo -e "  ${Y}bash /home/kd01/nyrov4/start_nyro.sh${N}   ← chalao"
 echo -e "  ${Y}sudo systemctl start nyro${N}       ← ya systemd se auto-run"
 echo -e "  ${Y}journalctl -u nyro -f${N}           ← logs dekhne ke liye"
 echo ""
-```eof
-
-Is update ke baad Raspberry Pi par installation ekdum makhan (smooth) chalegi, aur OS mismatch ka koi khatra nahi hoga! Terminal me jaakar `bash install.sh` run kijiye aur batayiye kaisa chal raha hai.
