@@ -1,13 +1,11 @@
 # speaker.py — Nyro v4 — TTS + Arduino Mouth Animation
-# Nyro model → Piper TTS (offline, Hindi female)
-# Bhai model → Edge TTS (online, Hindi male casual)
+# 100% Offline TTS using Piper (Human Touch Tuned)
 # Sends START_SPEECH / frame numbers / END_SPEECH to Arduino
 # -*- coding: utf-8 -*-
 import subprocess, threading, time
 import servo_ctrl
 from config import (
-    TTS_NYRO_ENGINE, TTS_BHAI_ENGINE,
-    PIPER_BIN, PIPER_MODEL, EDGE_VOICE_BHAI,
+    PIPER_BIN, PIPER_MODEL_NYRO, PIPER_MODEL_BHAI,
     AUDIO_WAV, AUDIO_MP3
 )
 
@@ -43,33 +41,25 @@ def _mouth_pattern(text: str):
     return _PATTERNS["normal"]
 
 # ════════════════════════════════════════════════════════════
-#  TTS ENGINES
+#  TTS ENGINES (100% PIPER OFFLINE - HUMAN TUNED)
 # ════════════════════════════════════════════════════════════
 
-def _piper(text: str) -> bool:
-    """Offline Hindi female — best for Nyro."""
+def _piper(text: str, model_path: str) -> bool:
+    """Offline Hindi using Piper with Human/Natural Tuning."""
     try:
         r = subprocess.run(
-            [PIPER_BIN, "--model", PIPER_MODEL,
-             "--output_file", AUDIO_WAV, "--quiet"],
+            [PIPER_BIN, 
+             "--model", model_path,
+             "--length_scale", "1.05",       # Thoda slow aur thehar kar bolega (Natural feel)
+             "--sentence_silence", "0.15",   # Sentence ke baad saans lene ka gap
+             "--output_file", AUDIO_WAV, 
+             "--quiet"],
             input=text.encode("utf-8"),
             capture_output=True, timeout=12
         )
         return r.returncode == 0
     except Exception as e:
         print(f"[Speaker] Piper error: {e}")
-        return False
-
-def _edge(text: str, voice: str) -> bool:
-    """Edge TTS — natural male voice for Bhai."""
-    try:
-        import asyncio, edge_tts
-        async def _run():
-            await edge_tts.Communicate(text, voice).save(AUDIO_MP3)
-        asyncio.run(_run())
-        return True
-    except Exception as e:
-        print(f"[Speaker] Edge error: {e}")
         return False
 
 def _gtts_fallback(text: str) -> bool:
@@ -81,13 +71,14 @@ def _gtts_fallback(text: str) -> bool:
 
 def _generate(text: str, mode: str):
     """Returns (filepath, is_wav)"""
-    if mode == "nyro":
-        if _piper(text): return AUDIO_WAV, True
-        if _edge(text, EDGE_VOICE_BHAI): return AUDIO_MP3, False   # fallback
-    else:  # bhai
-        if _edge(text, EDGE_VOICE_BHAI): return AUDIO_MP3, False
-        if _piper(text): return AUDIO_WAV, True   # fallback
-    if _gtts_fallback(text): return AUDIO_MP3, False
+    model_to_use = PIPER_MODEL_NYRO if mode == "nyro" else PIPER_MODEL_BHAI
+    
+    if _piper(text, model_to_use): 
+        return AUDIO_WAV, True
+        
+    if _gtts_fallback(text): 
+        return AUDIO_MP3, False
+        
     return None, False
 
 # ════════════════════════════════════════════════════════════
@@ -145,3 +136,4 @@ def _kill():
                 _player.kill()
     except: pass
     _player = None
+    
