@@ -22,13 +22,14 @@ GAS_COOLDOWN    = 30    # seconds between alerts
 
 # ── TTS (100% OFFLINE PIPER) ──────────────────────────────────
 TTS_ENGINE       = "piper"
-PIPER_BIN        = "/home/pi/piper/piper"
+# NAYA PATH UPDATE KIYA GAYA HAI
+PIPER_BIN        = "/home/kd01/piper/piper"
 
 # Nyro ke liye: Priyamvada (Natural Female Voice)
-PIPER_MODEL_NYRO = "/home/pi/piper/hi_IN-priyamvada-medium.onnx"
+PIPER_MODEL_NYRO = "/home/kd01/piper/hi_IN-priyamvada-medium.onnx"
 
 # Bhai ke liye: Rohan (Real Human Male Voice)
-PIPER_MODEL_BHAI = "/home/pi/piper/hi_IN-rohan-medium.onnx"
+PIPER_MODEL_BHAI = "/home/kd01/piper/hi_IN-rohan-medium.onnx"
 
 # Shared audio output
 AUDIO_WAV  = "/tmp/nyro.wav"
@@ -49,7 +50,8 @@ MAX_WORDS_BHAI = 45
 MAX_TOKENS     = 130
 
 # ── Memory ────────────────────────────────────────────────────
-MEM_FILE = "/home/pi/nyro_v4/memory.json"
+# NAYA PATH UPDATE KIYA GAYA HAI
+MEM_FILE = "/home/kd01/nyrov4/memory.json"
 
 # ── Default start mode ────────────────────────────────────────
 DEFAULT_MODE = "nyro"    # "nyro" | "bhai"
