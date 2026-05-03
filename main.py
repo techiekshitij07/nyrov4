@@ -18,7 +18,7 @@ Voice commands:
 Architecture (lag-free — 3 threads):
   Thread 1: Listener (always on, never blocks)
   Thread 2: Brain worker (Gemini API call async)
-  Thread 3: Speaker worker (TTS + Arduino)
+  Thread 3: Speaker worker (100% Offline TTS + Arduino)
 """
 
 import time, threading, queue as _q
@@ -119,7 +119,7 @@ def main():
 
     print("\n" + "═"*44)
     print("   NYRO v4 — Dual Model AI Robot")
-    print("   Model 1: Nyro | Model 2: Bhai")
+    print("   Model 1: Nyro (Priyamvada) | Model 2: Bhai (Rohan)")
     print("   Kshitij ka project — education & fun")
     print("═"*44 + "\n")
 
